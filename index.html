@@ -355,15 +355,15 @@ Pacman.User = function (game, map) {
         return score;
     };
 
-    function loseLife() {
-    setState(WAITING);
-    user.loseLife();
-    if (user.getLives() > 0) {
-        startLevel();
-    } else {
-        // Emit a game over event with the final score
-        window.parent.postMessage({ type: "GAME_OVER", score: user.theScore() }, "*");
-    }
+    function loseLife() {        
+        lives -= 1;
+        if (lives > 0) {
+            // If lives are still available, start the next level
+            startLevel();
+        } else {
+            // Trigger game over when no lives are left
+            window.parent.postMessage({ type: "GAME_OVER", score: theScore() }, "*");
+        }
 }
 
     function getLives() {
