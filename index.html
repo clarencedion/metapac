@@ -342,14 +342,12 @@ Pacman.User = function (game, map) {
     keyMap[KEY.ARROW_DOWN]  = DOWN;
 
     function addScore(nScore) { 
-    score += nScore;
-    if (score >= 10000 && score - nScore < 10000) { 
-        lives += 1;
-    }
-    // Send score update to React app
-    window.parent.postMessage({ type: "scoreUpdate", score }, "*");
-};
-
+        score += nScore;
+        if (score >= 10000 && score - nScore < 10000) { 
+            lives += 1;
+        }
+	    window.parent.postMessage({ type: "scoreUpdate", score }, "*");
+    };
 
     function theScore() { 
         return score;
