@@ -942,9 +942,10 @@ var PACMAN = (function () {
     };
     
     function collided(user, ghost) {
-        return (Math.sqrt(Math.pow(ghost.x - user.x, 2) + 
-                          Math.pow(ghost.y - user.y, 2))) < 10;
-    };
+    return Math.sqrt(
+        Math.pow(ghost.x - user.x, 2) + Math.pow(ghost.y - user.y, 2)
+    ) < 10;
+};
 
     function drawFooter() {
         
@@ -986,21 +987,18 @@ var PACMAN = (function () {
 
     function mainDraw() {
     var diff, u, i, len, nScore;
-    ghostPos = [];
 
-    // Move ghosts and user
+    ghostPos = [];
     for (i = 0, len = ghosts.length; i < len; i++) {
         ghostPos.push(ghosts[i].move(ctx));
     }
     u = user.move(ctx);
 
-    // Redraw old positions
     for (i = 0, len = ghosts.length; i < len; i++) {
         redrawBlock(ghostPos[i].old);
     }
     redrawBlock(u.old);
 
-    // Draw new positions
     for (i = 0, len = ghosts.length; i < len; i++) {
         ghosts[i].draw(ctx);
     }
@@ -1008,9 +1006,23 @@ var PACMAN = (function () {
 
     userPos = u["new"];
 
-    // Collision detection
+    // Collision detection logic
     for (i = 0, len = ghosts.length; i < len; i++) {
-        handleCollision(userPos, ghostPos[i]["new"]); // Use the new handleCollision
+        if (collided(userPos, ghostPos[i]["new"])) {
+            if (ghosts[i].isVunerable()) {
+                audio.play("eatghost");
+                ghosts[i].eat();
+                nScore = (eatenCount + 1) * 50;
+                drawScore(nScore, ghostPos[i]);
+                user.addScore(nScore);
+                setState(EATEN_PAUSE);
+                timerStart = tick;
+            } else if (ghosts[i].isDangerous()) {
+                audio.play("die");
+                setState(DYING);
+                timerStart = tick;
+            }
+        }
     }
 };
 
