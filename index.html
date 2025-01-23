@@ -880,8 +880,6 @@ var PACMAN = (function () {
         setState(WAITING);
         level = 1;
         user.reset();
-	// Send game over message to React app
-	window.parent.postMessage({ type: "gameOver", score }, "*");
         map.reset();
         map.draw(ctx);
         startLevel();
