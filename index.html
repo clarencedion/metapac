@@ -355,15 +355,15 @@ Pacman.User = function (game, map) {
     };
 
     function loseLife() {        
-        lives -= 1;
-        if (lives > 0) {
-            // If lives are still available, start the next level
-            startLevel();
-        } else {
-            // Trigger game over when no lives are left
-            window.parent.postMessage({ type: "GAME_OVER", score: theScore() }, "*");
-        }
+    lives -= 1; // Deduct 1 life
+    if (lives > 0) {
+	startLevel(); // Start the next level if lives remain
+    } else {
+	// Trigger GAME_OVER
+	window.parent.postMessage({ type: "GAME_OVER", score: theScore() }, "*");
+    }
 }
+
 
     function getLives() {
         return lives;
