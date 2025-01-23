@@ -369,15 +369,17 @@ Pacman.User = function (game, map) {
         return score;
     };
 
-    function loseLife() {        
-    lives -= 1; // Deduct 1 life
+    function loseLife() {
+    lives -= 1; // Decrease lives
     if (lives > 0) {
-	startLevel(); // Start the next level if lives remain
+        // If lives remain, start the next level
+        startLevel();
     } else {
-	// Trigger GAME_OVER
-	window.parent.postMessage({ type: "GAME_OVER", score: theScore() }, "*");
+        // If no lives remain, trigger game over
+        window.parent.postMessage({ type: "GAME_OVER", score: theScore() }, "*");
     }
 }
+
 
 
     function getLives() {
@@ -887,15 +889,22 @@ var PACMAN = (function () {
         return localStorage["soundDisabled"] === "true";
     };
     
-    function startLevel() {        
-        user.resetPosition();
-        for (var i = 0; i < ghosts.length; i += 1) { 
-            ghosts[i].reset();
-        }
-        audio.play("start");
-        timerStart = tick;
-        setState(COUNTDOWN);
-    }    
+    function startLevel() {
+    user.resetPosition();
+    for (let i = 0; i < ghosts.length; i++) {
+        ghosts[i].reset();
+    }
+    audio.play("start");
+    timerStart = tick;
+    setState(COUNTDOWN); // Countdown before starting the level
+}
+
+	function setState(newState) {
+    console.log(`Game state changing from ${state} to ${newState}`);
+    state = newState;
+    stateChanged = true;
+}
+
 
     function startNewGame() {
         setState(WAITING);
