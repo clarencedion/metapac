@@ -142,6 +142,21 @@ Pacman.Ghost = function (game, map, colour) {
             dir === UP && DOWN || UP;
     };
 
+let isCollisionHandled = false;
+
+function handleCollision(user, ghost) {
+    if (collided(user, ghost) && !isCollisionHandled) {
+        isCollisionHandled = true;
+        loseLife();
+        
+        // Add a cooldown to prevent multiple triggers
+        setTimeout(() => {
+            isCollisionHandled = false;
+        }, 1000); // Adjust the cooldown as needed
+    }
+}
+
+
     function makeEatable() {
         direction = oppositeDirection(direction);
         eatable = game.getTick();
@@ -969,48 +984,36 @@ var PACMAN = (function () {
         map.drawBlock(Math.ceil(pos.y/10), Math.ceil(pos.x/10), ctx);
     }
 
-    function mainDraw() { 
+    function mainDraw() {
+    var diff, u, i, len, nScore;
+    ghostPos = [];
 
-        var diff, u, i, len, nScore;
-        
-        ghostPos = [];
+    // Move ghosts and user
+    for (i = 0, len = ghosts.length; i < len; i++) {
+        ghostPos.push(ghosts[i].move(ctx));
+    }
+    u = user.move(ctx);
 
-        for (i = 0, len = ghosts.length; i < len; i += 1) {
-            ghostPos.push(ghosts[i].move(ctx));
-        }
-        u = user.move(ctx);
-        
-        for (i = 0, len = ghosts.length; i < len; i += 1) {
-            redrawBlock(ghostPos[i].old);
-        }
-        redrawBlock(u.old);
-        
-        for (i = 0, len = ghosts.length; i < len; i += 1) {
-            ghosts[i].draw(ctx);
-        }                     
-        user.draw(ctx);
-        
-        userPos = u["new"];
-        
-        for (i = 0, len = ghosts.length; i < len; i += 1) {
-            if (collided(userPos, ghostPos[i]["new"])) {
-                if (ghosts[i].isVunerable()) { 
-                    audio.play("eatghost");
-                    ghosts[i].eat();
-                    eatenCount += 1;
-                    nScore = eatenCount * 50;
-                    drawScore(nScore, ghostPos[i]);
-                    user.addScore(nScore);                    
-                    setState(EATEN_PAUSE);
-                    timerStart = tick;
-                } else if (ghosts[i].isDangerous()) {
-                    audio.play("die");
-                    setState(DYING);
-                    timerStart = tick;
-                }
-            }
-        }                             
-    };
+    // Redraw old positions
+    for (i = 0, len = ghosts.length; i < len; i++) {
+        redrawBlock(ghostPos[i].old);
+    }
+    redrawBlock(u.old);
+
+    // Draw new positions
+    for (i = 0, len = ghosts.length; i < len; i++) {
+        ghosts[i].draw(ctx);
+    }
+    user.draw(ctx);
+
+    userPos = u["new"];
+
+    // Collision detection
+    for (i = 0, len = ghosts.length; i < len; i++) {
+        handleCollision(userPos, ghostPos[i]["new"]); // Use the new handleCollision
+    }
+};
+
 
     function mainLoop() {
 
